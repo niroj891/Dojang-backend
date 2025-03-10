@@ -15,29 +15,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name="user_table")
-public class User  implements Serializable{
+
+@Table(name="chat_tbl")
+public class Chat implements Serializable {
 	
-	private static final long serialVersionUID = 934839458398500L;
+	private static final long serialVersionUID = 87773663635534667L;
 	
-	@Id 
-	@Column(name="user_id")	
+	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="chat_id")
 	private int id;
-	private String firstName;
-	private String lastName;
-	private String phoneNumber;
-	private String email;
-	private String password;
-	private String gender;
 	
-	private List<Integer> followers = new ArrayList<>();
-	private List<Integer> followings = new ArrayList<>();
+	private String chatName;
+	private String chatImage;
+	private Boolean isGroup;
+	private User createdBy;
 	
+	private List<User> users = new ArrayList<>();
+	
+	private List<Message> message = new ArrayList<>();
 
 }
