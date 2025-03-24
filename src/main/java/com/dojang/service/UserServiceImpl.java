@@ -5,11 +5,13 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dojang.dao.UserDao;
 import com.dojang.model.User;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
 	@Autowired
@@ -96,6 +98,12 @@ public class UserServiceImpl implements UserService {
 	public List<User> findAll() {
 		
 		return userDao.findAll();
+	}
+
+	@Override
+	public void deleteUser(User user) {
+		// TODO Auto-generated method stub
+		userDao.delete(user);
 	}
 	
 	

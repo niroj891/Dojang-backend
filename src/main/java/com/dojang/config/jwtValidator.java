@@ -12,6 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,9 +36,19 @@ public class jwtValidator extends OncePerRequestFilter {
 		String jwt = request.getHeader(JwtConstant.JWT_HEADER);
 		
 		if (jwt!=null) {
+			jwt = jwt.substring(7);
+			
+			
 			
 			try {
+				Claims claims = Jwts.parser()
+						.verifyWith(auth)
+						.build()
+						.parseSingnedClaims(jwt)
+						.getPayload();
 				String email = jwtProvider.getEmailFromJwtToken(jwt);
+				
+				
 				List<GrantedAuthority>authorities = new ArrayList<>();
 				
 				Authentication auhentication = new UsernamePasswordAuthenticationToken(email,null,authorities);
@@ -48,7 +61,7 @@ public class jwtValidator extends OncePerRequestFilter {
 			
 		}
 //		else {
-//			throw new BadCredentialsException("please provid a valid token");
+//			throw new BadCredentialsException("please provide a valid token");
 //		}
 		
 		filterChain.doFilter(request, response);

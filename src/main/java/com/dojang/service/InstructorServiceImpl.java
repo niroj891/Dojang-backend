@@ -3,10 +3,16 @@ package com.dojang.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dojang.dao.InstructorDao;
 import com.dojang.model.Instructor;
 
+
+
+@Service
+@Transactional
 public class InstructorServiceImpl implements InstructorService{
 	
 	@Autowired
