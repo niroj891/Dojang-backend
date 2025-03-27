@@ -3,8 +3,10 @@ package com.dojang.service;
 import java.util.List;
 
 import com.dojang.exception.ChatException;
+import com.dojang.exception.UserException;
 import com.dojang.model.Chat;
 import com.dojang.model.User;
+import com.dojang.request.GroupChatRequest;
 
 public interface ChatService {
 	

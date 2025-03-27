@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -38,27 +41,36 @@ public class jwtValidator extends OncePerRequestFilter {
 		if (jwt!=null) {
 			jwt = jwt.substring(7);
 			
-			
+//			 Claims claims = Jwts.parser()
+//			            .verifyWith(key)
+//			            .build()
+//			            .parseSignedClaims(jwt)
+//			            .getPayload();
+//			        return String.valueOf(claims.get("email"));
 			
 			try {
-				Claims claims = Jwts.parser()
-						.verifyWith(auth)
-						.build()
-						.parseSingnedClaims(jwt)
-						.getPayload();
-				String email = jwtProvider.getEmailFromJwtToken(jwt);
 				
 				
-				List<GrantedAuthority>authorities = new ArrayList<>();
+				SecretKey key= Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
 				
-				Authentication auhentication = new UsernamePasswordAuthenticationToken(email,null,authorities);
+				Claims claims=Jwts.parser()
+				.verifyWith(key).build()
+				.parseSignedClaims(jwt)
+				.getPayload();
 				
-				SecurityContextHolder.getContext().setAuthentication(auhentication);
-			
+				
+				String email=String.valueOf(claims.get("email"));
+				
+				String authorities=String.valueOf(claims.get("authorities"));
+				
+				List<GrantedAuthority> auths=AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+				Authentication athentication=new UsernamePasswordAuthenticationToken(email,null, auths);
+				
+				SecurityContextHolder.getContext().setAuthentication(athentication);
+				
 			} catch (Exception e) {
-				throw new BadCredentialsException("Invalid token");
+				throw new BadCredentialsException("invalid token...");
 			}
-			
 		}
 //		else {
 //			throw new BadCredentialsException("please provide a valid token");

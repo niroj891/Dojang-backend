@@ -19,12 +19,13 @@ public class JwtProvider {
 	private  SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
 	
 	public  String generateToken(Authentication auth) {
-		User user =(User) auth.getPrincipal();    // Cast to user entity
+		
+		    // Cast to user entity
 		String jwt =Jwts.builder()
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(new Date().getTime()+86400000))
 				.claim("email",auth.getName())
-				.claim("role", user.getRole().name())
+				
 				.signWith(key)
 				.compact();
 		

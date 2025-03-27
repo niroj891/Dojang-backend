@@ -2,12 +2,16 @@ package com.dojang.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dojang.config.JwtProvider;
 import com.dojang.dao.UserDao;
+import com.dojang.exception.UserException;
 import com.dojang.model.User;
 
 @Service
@@ -16,81 +20,135 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserDao userDao;
+	@Autowired
+	private JwtProvider jwtProvider;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 
 
 	@Override
-	public User registerUser(User user) {
+	public User registerUser(User user) throws UserException{
 		
-		return userDao.save(user);
+		Optional<User> isEmailExist = userDao.findByEmail(user.getEmail());
+		
+		if (isEmailExist.isPresent()) {
+			throw new UserException("Email Already Exist");
+		}
+			
+			String encodedPassword=passwordEncoder.encode(user.getPassword());
+			
+			User newUser=new User();
+			
+			newUser.setEmail(user.getEmail());
+			newUser.setPassword(encodedPassword);
+			newUser.setFirstName(user.getFirstName());
+			newUser.setLastName(user.getLastName());
+			
+			return userDao.save(newUser);
+			
+			
 	}
 
 	@Override
-	public User findUserById(Integer id) throws Exception{
+	public User findUserById(Integer id) throws UserException{
 		
-		Optional<User> user = userDao.findById(id);
+		Optional<User> opt = userDao.findById(id);
 		
-		if(user.isPresent()) {
-			return user.get();
+		if(opt.isPresent()) {
+			return opt.get();
 		}
-		throw new Exception("user not exist with user id" + id);
+		throw new UserException("user not exist with user id" + id);
 		
 	}
 	
 
 	@Override
-	public User findUserByEmail(String email) {
-		User user = userDao.findByEmail(email);
-		return user;
+	public User findUserByEmail(String username)throws UserException {
+		
+		Optional<User> opt=userDao.findByEmail(username);
+		
+		if(opt.isPresent()) {
+			User user=opt.get();
+			return user;
+		}
+		
+		throw new UserException("user not exist with username "+username);
+	}
+	
+	
+
+	@Override
+	public String followUser(Integer reqUserId, Integer followUserId) throws UserException {
+		
+	
+		User followUser=findUserById(followUserId);
+		User reqUser=findUserById(reqUserId); 
+		
+		
+		if(followUser.getFollower().contains(reqUser)) {
+			followUser.getFollower().remove(reqUser);
+			reqUser.getFollowing().remove(followUser);
+		}
+		else {
+			followUser.getFollower().add(reqUser);
+		    reqUser.getFollowing().add(followUser);
+		}
+		
+		userDao.save(followUser);
+		userDao.save(reqUser);
+		
+		return "Success";
+	}
+	
+	
+
+	@Override
+	public User updateUser(User updatedUser, User existingUser) throws UserException{
+		
+		
+		if(updatedUser.getFirstName()!=null) {
+			existingUser.setFirstName(updatedUser.getFirstName());
+		}
+		
+		if(updatedUser.getLastName()!=null) {
+			existingUser.setLastName(updatedUser.getLastName());
+		}
+		
+		if(updatedUser.getEmail()!=null) {
+			existingUser.setEmail(updatedUser.getEmail());
+		}
+		
+		if(updatedUser.getPhoneNumber()!=null) {
+			existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+		}
+		
+		if(updatedUser.getImage()!=null) {
+			existingUser.setImage(updatedUser.getImage());
+		}
+		
+		if(updatedUser.getGender()!=null) {
+			existingUser.setGender(updatedUser.getGender());
+		}
+		
+		
+		
+		if(updatedUser.getId()==existingUser.getId()) {
+			System.out.println(" u "+updatedUser.getId()+" e "+existingUser.getId());
+			throw new UserException("you can't update another user"); 
+		}
+		
+		return userDao.save(existingUser);
 	}
 
 	@Override
-	public User followUser(Integer userId1, Integer userId2) throws Exception {
-		User user1 = findUserById(userId1);
-		User user2 = findUserById(userId2);
-		
-		user2.getFollowers().add(user1.getId());
-		user1.getFollowers().add(user2.getId());
-		
-		userDao.save(user1);
-		userDao.save(user2);
-		return user1;
-	}
-
-	@Override
-	public User updateUser(User user, Integer userId) throws Exception{
-		
-		Optional<User> user1 = userDao.findById(userId);
-		
-		if (user1.isEmpty()) {
-			throw new Exception("user not found with user id" + userId);
-		}
-		
-		User oldUser = user1.get();
-		
-		if(user.getFirstName()!=null) {
-			oldUser.setFirstName(user.getFirstName());
-		}
-		
-		if(user.getLastName()!=null) {
-			oldUser.setLastName(user.getLastName());
-		}
-		
-		if(user.getEmail()!=null) {
-			oldUser.setEmail(user.getEmail());
-		}
-		
-		if(user.getPhoneNumber()!=null) {
-			oldUser.setPhoneNumber(user.getPhoneNumber());
-		}
-		
-		User updatedUser = userDao.save(oldUser);
-		return updatedUser;
-	}
-
-	@Override
-	public List<User> searchUser(String query) {
+	public Set<User> searchUser(String query) throws UserException {
 		// TODO Auto-generated method stub
-		return  userDao.searchUser(query);
+		Set<User> users = userDao.findByQuery(query);
+		if(users.size()==0) {
+			throw new UserException("user not exist.....");
+		}
+		return users;
 		  
 	}
 
@@ -105,6 +163,20 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		userDao.delete(user);
 	}
+
+	@Override
+	public User findUserProfileByJwt(String jwt) throws UserException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<User> findUsersByUserIds(List<Integer> userIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 	
 	
 

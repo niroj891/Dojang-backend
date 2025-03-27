@@ -1,12 +1,14 @@
 package com.dojang.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,6 +19,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -45,6 +48,7 @@ public class User  implements Serializable{
 	private String email;
 	private String password;
 	private String gender;
+	private String image;
 	
 	@Enumerated(EnumType.STRING)
 	private Role role;
@@ -58,8 +62,12 @@ public class User  implements Serializable{
 	
 	public String getUsername() {return email;}
 	
-	private List<Integer> followers = new ArrayList<>();
-	private List<Integer> followings = new ArrayList<>();
+	@JsonIgnore
+	@ManyToMany
+	private Set<User> follower = new HashSet<>();
 	
+	@JsonIgnore
+	@ManyToMany(mappedBy = "follower",fetch = FetchType.LAZY)
+	private Set<User> following = new HashSet<User>();
 
 }

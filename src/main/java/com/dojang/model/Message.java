@@ -30,9 +30,9 @@ public class Message implements Serializable{
 	private String Content;
 	private String image;
 	
-	private LocalDateTime date;
+	private LocalDateTime timeStamp;
 	
-	private Boolean is_read;
+	private Boolean isRead;
 	private User user;
 	
 	private Chat chat;

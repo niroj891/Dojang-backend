@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import com.dojang.dao.ChatDao;
 import com.dojang.dao.MessageDao;
 import com.dojang.exception.ChatException;
+import com.dojang.exception.UserException;
 import com.dojang.model.Chat;
 import com.dojang.model.User;
+import com.dojang.request.GroupChatRequest;
 
 @Service
 public class ChatServiceImpl implements ChatService{

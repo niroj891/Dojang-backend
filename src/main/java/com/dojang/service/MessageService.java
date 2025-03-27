@@ -2,6 +2,9 @@ package com.dojang.service;
 
 import java.util.List;
 
+import com.dojang.exception.ChatException;
+import com.dojang.exception.MessageException;
+import com.dojang.exception.UserException;
 import com.dojang.model.Message;
 
 public interface MessageService {
