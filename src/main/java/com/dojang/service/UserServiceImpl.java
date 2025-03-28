@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
 	
 
 	@Override
-	public User updateUser(User updatedUser, User existingUser) throws UserException{
+	public User updateUserDetails(User updatedUser, User existingUser) throws UserException{
 		
 		
 		if(updatedUser.getFirstName()!=null) {
@@ -166,8 +166,16 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User findUserProfileByJwt(String jwt) throws UserException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		String email =jwtProvider.getEmailFromJwtToken(jwt);
+		System.out.println("email" + email);
+		Optional<User> user=userDao.findByEmail(email);
+		
+		if(user.isEmpty()) {
+			throw new UserException("user not exist with email "+email);
+		}
+		System.out.println("email user "+user.get().getEmail());
+		return user.get();
 	}
 
 	@Override

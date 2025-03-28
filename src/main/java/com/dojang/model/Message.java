@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ public class Message implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="message_id")
-	private int id;
+	private Integer id;
 	
 	private String Content;
 	private String image;
@@ -33,8 +34,11 @@ public class Message implements Serializable{
 	private LocalDateTime timeStamp;
 	
 	private Boolean isRead;
+	
+	@ManyToOne
 	private User user;
 	
+	@ManyToOne // Join column to chat_id
 	private Chat chat;
 	
 	

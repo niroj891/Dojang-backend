@@ -10,7 +10,7 @@ import com.dojang.request.GroupChatRequest;
 
 public interface ChatService {
 	
-	public Chat createChat(User reqUser, User user2);
+	public Chat createChat(Integer reqUserId, Integer userId2, boolean isGroup) throws UserException;
 	
 
 	public Chat findChatById(Integer chatId) throws ChatException;

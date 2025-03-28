@@ -8,6 +8,7 @@ import com.dojang.exception.ChatException;
 import com.dojang.exception.MessageException;
 import com.dojang.exception.UserException;
 import com.dojang.model.Message;
+import com.dojang.request.SendMessageRequest;
 
 @Service
 public class MessageServiceImpl implements MessageService{

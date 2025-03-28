@@ -17,7 +17,7 @@ public interface UserService {
 	public List<User> findUsersByUserIds(List<Integer> userIds);
 	
 	public Set<User> searchUser(String query) throws UserException;
-	public User updateUser(User updatedUser, User existingUser) throws UserException;
+	public User updateUserDetails(User updatedUser, User existingUser) throws UserException;
 	public void deleteUser(User user);
 	
 	public List<User> findAll();

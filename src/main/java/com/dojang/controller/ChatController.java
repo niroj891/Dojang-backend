@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dojang.dto.ChatDto;
+import com.dojang.dto.mapper.ChatDtoMapper;
 import com.dojang.exception.ChatException;
 import com.dojang.exception.UserException;
 import com.dojang.model.Chat;

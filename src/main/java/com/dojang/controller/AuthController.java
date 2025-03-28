@@ -1,5 +1,7 @@
 package com.dojang.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,7 +45,7 @@ public class AuthController {
 	@PostMapping("/signup")
 	public AuthResponse createUser(@RequestBody User user) throws Exception{
 		
-		User isExist = userDao.findByEmail(user.getEmail());
+		Optional<User> isExist = userDao.findByEmail(user.getEmail());
 		if(isExist != null) {
 			throw new Exception ("This email is already used with another account");
 		}
