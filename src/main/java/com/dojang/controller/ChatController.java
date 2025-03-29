@@ -24,7 +24,7 @@ import com.dojang.service.ChatService;
 import com.dojang.service.UserService;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/chats")
 public class ChatController {
 	
 	@Autowired 

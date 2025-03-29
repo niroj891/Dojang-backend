@@ -46,14 +46,18 @@ public class AuthController {
 	public AuthResponse createUser(@RequestBody User user) throws Exception{
 		
 		Optional<User> isExist = userDao.findByEmail(user.getEmail());
-		if(isExist != null) {
-			throw new Exception ("This email is already used with another account");
-		}
+//		if(isExist != null) {
+//			throw new Exception ("This email is already used with another account");
+//		}
 		
 		User newUser = new User();
 		newUser.setEmail(user.getEmail());
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
+		newUser.setGender(user.getGender());
+		newUser.setRole(user.getRole());
+		newUser.setUsername(user.getUsername());
+		newUser.setPhoneNumber(user.getPhoneNumber());
 		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
 		User savedUser = userDao.save(newUser);
 		
