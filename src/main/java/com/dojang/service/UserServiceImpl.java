@@ -80,27 +80,27 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String followUser(Integer reqUserId, Integer followUserId) throws UserException {
-		
-	
-		User followUser=findUserById(followUserId);
-		User reqUser=findUserById(reqUserId); 
-		
-		
-		if(followUser.getFollower().contains(reqUser)) {
-			followUser.getFollower().remove(reqUser);
-			reqUser.getFollowing().remove(followUser);
-		}
-		else {
-			followUser.getFollower().add(reqUser);
-		    reqUser.getFollowing().add(followUser);
-		}
-		
-		userDao.save(followUser);
-		userDao.save(reqUser);
-		
+//
+//
+//		User followUser=findUserById(followUserId);
+//		User reqUser=findUserById(reqUserId);
+//
+//
+//		if(followUser.getFollower().contains(reqUser)) {
+//			followUser.getFollower().remove(reqUser);
+//			reqUser.getFollowing().remove(followUser);
+//		}
+//		else {
+//			followUser.getFollower().add(reqUser);
+//		    reqUser.getFollowing().add(followUser);
+//		}
+//
+//		userDao.save(followUser);
+//		userDao.save(reqUser);
+//
 		return "Success";
 	}
-	
+//
 	
 
 	@Override
@@ -183,9 +183,4 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
-	
-	
-
 }

@@ -42,7 +42,6 @@ import lombok.Setter;
 public class User  implements Serializable{
 	
 	private static final long serialVersionUID = 934839458398500L;
-	
 	@Id 
 	@Column(name="user_id")	
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -55,22 +54,15 @@ public class User  implements Serializable{
 	private String phoneNumber;
 	private String email;
 	
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	private String gender;
 	private String image;
 	
 	@Enumerated(EnumType.STRING)
 	private Role role;
-	
-	
 	@Transient
 	private String authority;
-	
-	
-	
-	
-	public String getUsername() {return email;}
+
 	
 	@JsonIgnore
 	@ManyToMany
@@ -80,25 +72,29 @@ public class User  implements Serializable{
 	@ManyToMany(mappedBy = "follower",fetch = FetchType.LAZY)
 	private Set<User> following = new HashSet<User>();
 	
-	
+
+
 	@JsonIgnore
 	@ManyToMany
 	private List<Post> savedPosts = new ArrayList<>();
 	
-	@JsonManagedReference
-	@JsonIgnore
+
+
 	@ManyToMany
+	@JsonManagedReference
 	private List<Post> reposts = new ArrayList<>();
 	
-//	@JsonBackReference
-//	@JsonIgnore
-//	@OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-//	private List<Notification> notifications=new ArrayList<>();
-//	
+
 	
-	
-	
-	
+	@OneToMany(mappedBy = "user")
+	@JsonManagedReference
+	private List<Registration> registrations = new ArrayList<>();
+
+
+
+	@OneToMany(mappedBy = "instructor")
+	@JsonManagedReference
+	private  List<Event> events = new ArrayList<>();
 	
 
 }

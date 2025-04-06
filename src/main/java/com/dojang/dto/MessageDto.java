@@ -18,9 +18,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MessageDto {
 	
-private int id;
+	private int id;
 	
-	private String Content;
+	private String content;
 	private String image;
 	
 	private LocalDateTime timeStamp;

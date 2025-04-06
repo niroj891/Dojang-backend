@@ -3,6 +3,8 @@ package com.dojang.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +30,7 @@ public class Message implements Serializable{
 	@Column(name="message_id")
 	private Integer id;
 	
-	private String Content;
+	private String content;
 	private String image;
 	
 	private LocalDateTime timeStamp;
@@ -39,6 +41,7 @@ public class Message implements Serializable{
 	private User user;
 	
 	@ManyToOne // Join column to chat_id
+	@JsonIgnore
 	private Chat chat;
 	
 	

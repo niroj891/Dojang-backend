@@ -2,7 +2,11 @@ package com.dojang.controller;
 
 import java.util.Optional;
 
+import com.dojang.dto.UserDto;
+import com.dojang.exception.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,39 +47,41 @@ public class AuthController {
 	private JwtProvider jwtProvider;
 	
 	@PostMapping("/signup")
-	public AuthResponse createUser(@RequestBody User user) throws Exception{
+	public AuthResponse createUser(@RequestBody UserDto user) throws Exception{
 		
 		Optional<User> isExist = userDao.findByEmail(user.getEmail());
-//		if(isExist != null) {
+//	if(isExist != null) {
 //			throw new Exception ("This email is already used with another account");
 //		}
-		
 		User newUser = new User();
 		newUser.setEmail(user.getEmail());
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setGender(user.getGender());
 		newUser.setRole(user.getRole());
-		newUser.setUsername(user.getUsername());
+		newUser.setUsername(user.getUserName());
 		newUser.setPhoneNumber(user.getPhoneNumber());
 		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
 		User savedUser = userDao.save(newUser);
-		
 		Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
-		
 		String token = jwtProvider.generateToken(authentication);
-		AuthResponse res = new AuthResponse (token, "Register Success");
-		
+		AuthResponse res = new AuthResponse (token,"Register Success",null);
 		return res;
 	}
 	
 	@PostMapping("/signin")
-	public AuthResponse signin(@RequestBody LoginRequest loginRequest) {
+	public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) throws UserException {
 		
 		Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
-		String token = jwtProvider.generateToken(authentication);
-		AuthResponse res = new AuthResponse (token, "login Success");
-		return res;
+		if (authentication.isAuthenticated()) {
+			String token = jwtProvider.generateToken(authentication);
+			User userByEmail = userService.findUserByEmail(loginRequest.getEmail());
+			AuthResponse res = new AuthResponse(token,"success", userByEmail.getRole().toString() );
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		}else {
+			AuthResponse response = new AuthResponse(null, null,"failed" );
+			return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+		}
 	}
 
 	private Authentication authenticate(String email, String password) {

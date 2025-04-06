@@ -24,6 +24,7 @@ public class UserDtoMapper {
 		
 		userDto.setGender(user.getGender());
 		userDto.setId(user.getId());
+		userDto.setRole(user.getRole().toString());
 		
 		
 		userDto.setReposts(reposts);

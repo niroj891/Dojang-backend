@@ -75,8 +75,5 @@ public class ChatController {
 		
 		return new ResponseEntity<>(chatDtos,HttpStatus.ACCEPTED);
 	}
-	
-
-	
 
 }

@@ -1,7 +1,7 @@
 package com.dojang.model;
 
 
-public enum  RegistrationStatus {
+public enum  EventStatus {
 	
 	PENDING, APPROVED, REJECTED
 

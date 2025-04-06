@@ -26,6 +26,8 @@ public class UserProfileDto {
 	private String gender;
 	private String image;
 	
+	private String role;
+	
 	private List<UserDto> follower = new ArrayList<>();
 	
 	private List<User> following = new ArrayList<>();

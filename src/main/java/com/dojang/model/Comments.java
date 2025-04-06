@@ -2,6 +2,7 @@ package com.dojang.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ public class Comments  implements Serializable{
 	private String content;
 	
 	@Column(name="create_date")
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 	
 	@ManyToOne
 	private User user;

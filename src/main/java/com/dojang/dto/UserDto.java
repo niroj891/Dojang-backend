@@ -2,6 +2,7 @@ package com.dojang.dto;
 
 
 
+import com.dojang.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,9 @@ public class UserDto {
 	private String email;
 	private String gender;
 	private String image;
+	private Role role;
+	private String password;
+
+	private String userName;
 
 }
