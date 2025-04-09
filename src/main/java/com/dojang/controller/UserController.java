@@ -2,11 +2,20 @@ package com.dojang.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import com.dojang.dto.ParticipationDto;
+import com.dojang.model.Event;
+import com.dojang.model.Participation;
+import com.dojang.model.PlayerStatus;
+import com.dojang.service.EventService;
+import com.dojang.service.ParticipationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +42,12 @@ public class UserController {
 	
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private EventService eventService;
+
+	@Autowired
+	private ParticipationService participationService;
 	
 	@GetMapping("/profile")
 	public ResponseEntity<UserProfileDto> getUserProfileHandler(@RequestHeader("Authorization") String jwt) throws UserException {
@@ -87,7 +102,27 @@ public class UserController {
 		UserProfileDto userDto=UserDtoMapper.reqUserDTO(updatedUser,reqUser);
 
 		return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
-		
-		
+	}
+
+	@PostMapping("/events/register/{eventId}")
+	public ResponseEntity<?> registerInEvent(@PathVariable Integer eventId, @RequestBody ParticipationDto participationDto) throws UserException {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		User userByEmail = userService.findUserByEmail(email);
+		Event event = eventService.getById(eventId);
+		Optional<Participation> first = participationService.getAll().stream().filter(participation -> participation.getEvent().getEventId().equals(eventId) && participation.getUser().getEmail().equals(email)).findFirst();
+		if (first.isPresent()){
+			throw new UserException("User already exists");
+		}
+		Participation participation = new Participation();
+		participation.setFirstName(participationDto.getFirstName());
+		participation.setLastName(participationDto.getLastName());
+		participation.setPlayerStatus(participationDto.getPlayerStatus());
+		participation.setDojangName(participationDto.getDojangName());
+		participation.setUser(userByEmail);
+		participation.setEvent(event);
+		participation.setWeightCategory(participationDto.getWeightCategory());
+		participationService.saveParticipation(participation);
+		participation.setPlayerStatus(PlayerStatus.NOTOUT);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

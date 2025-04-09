@@ -8,17 +8,20 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-public class Registration {
+public class Participation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(name = "id", nullable = false)
 	private Long id;
 
+	private String firstName;
+
 	private String lastName;
 
 	private String dojangName;
 
-	private WeightCategory weightCategory;
+	@Enumerated(EnumType.STRING)
+	private WeightCategory weightCategory;  // Fin, Fly, Bantam and Feather weight
 
 	@ManyToOne
 	@JsonBackReference
@@ -30,5 +33,6 @@ public class Registration {
 	@JoinColumn(name = "event_id")
 	private  Event event;
 
-
+	@Enumerated(EnumType.STRING)
+	private PlayerStatus playerStatus = PlayerStatus.NOTOUT;
 }

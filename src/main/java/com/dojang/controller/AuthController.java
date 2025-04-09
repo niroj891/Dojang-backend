@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.dojang.dto.UserDto;
 import com.dojang.exception.UserException;
+import com.dojang.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,7 @@ public class AuthController {
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setGender(user.getGender());
-		newUser.setRole(user.getRole());
+		newUser.setRole(Role.USER);
 		newUser.setUsername(user.getUserName());
 		newUser.setPhoneNumber(user.getPhoneNumber());
 		newUser.setPassword(passwordEncoder.encode(user.getPassword()));

@@ -6,15 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +19,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -71,25 +64,18 @@ public class User  implements Serializable{
 	@JsonIgnore
 	@ManyToMany(mappedBy = "follower",fetch = FetchType.LAZY)
 	private Set<User> following = new HashSet<User>();
-	
-
 
 	@JsonIgnore
 	@ManyToMany
 	private List<Post> savedPosts = new ArrayList<>();
-	
-
 
 	@ManyToMany
 	@JsonManagedReference
 	private List<Post> reposts = new ArrayList<>();
-	
 
-	
 	@OneToMany(mappedBy = "user")
 	@JsonManagedReference
-	private List<Registration> registrations = new ArrayList<>();
-
+	private List<Participation> registrations = new ArrayList<>();
 
 
 	@OneToMany(mappedBy = "instructor")

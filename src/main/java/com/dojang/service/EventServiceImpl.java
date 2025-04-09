@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.rmi.server.UID;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +52,9 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public void deleteEvent(Event event) {
 		eventDao.delete(event);
+
 		
 	}
-
 	@Override
 	public void UpdateEvent(Event event) {
 		eventDao.save(event);
@@ -70,5 +71,12 @@ public class EventServiceImpl implements EventService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public Event getById(Integer id){
+		Optional<Event> byId = eventDao.findById(id);
+		Event event = byId.orElseThrow(()->new RuntimeException("Event not found"));
+		return  event;
+	}
+
 
 }

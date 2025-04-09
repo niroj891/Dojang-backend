@@ -13,5 +13,4 @@ public interface EventDao extends JpaRepository<Event, Integer> {
 	
 	List<Event> findByInstructorId(Integer id);
 	Optional<Event> findById(Integer id);
-
 }

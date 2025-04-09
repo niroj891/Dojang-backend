@@ -26,7 +26,7 @@ public class Event implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="event_id")
-	private int eventId;
+	private Integer eventId;
 	
 	private String title;
 	private String description;
@@ -56,5 +56,5 @@ public class Event implements Serializable {
 
 	@OneToMany(mappedBy = "event")
 	@JsonManagedReference
-	private List<Registration> registrations = new ArrayList<>();
+	private List<Participation> registrations = new ArrayList<>();
 }

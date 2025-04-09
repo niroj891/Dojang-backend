@@ -14,4 +14,5 @@ public interface EventService {
 	public void UpdateEvent(Event event);
 	public List <Event> getAllEvents();
 	public List<Event> getByName();
+	public Event getById(Integer id);
 }
