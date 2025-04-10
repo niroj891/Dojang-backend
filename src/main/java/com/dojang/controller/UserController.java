@@ -109,10 +109,15 @@ public class UserController {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		User userByEmail = userService.findUserByEmail(email);
 		Event event = eventService.getById(eventId);
-		Optional<Participation> first = participationService.getAll().stream().filter(participation -> participation.getEvent().getEventId().equals(eventId) && participation.getUser().getEmail().equals(email)).findFirst();
+		Optional<Participation> first = participationService.getAll().stream()
+				.filter(participation -> participation.getEvent()
+				.getEventId().equals(eventId) && participation.getUser()
+				.getEmail().equals(email)).findFirst();
+		
 		if (first.isPresent()){
 			throw new UserException("User already exists");
 		}
+		else {
 		Participation participation = new Participation();
 		participation.setFirstName(participationDto.getFirstName());
 		participation.setLastName(participationDto.getLastName());
@@ -124,5 +129,6 @@ public class UserController {
 		participationService.saveParticipation(participation);
 		participation.setPlayerStatus(PlayerStatus.NOTOUT);
 		return new ResponseEntity<>(HttpStatus.OK);
+		}
 	}
 }
