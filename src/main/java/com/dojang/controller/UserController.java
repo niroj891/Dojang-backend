@@ -115,7 +115,7 @@ public class UserController {
 				.getEmail().equals(email)).findFirst();
 		
 		if (first.isPresent()){
-			throw new UserException("User already exists");
+			return  new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		else {
 		Participation participation = new Participation();
@@ -128,7 +128,7 @@ public class UserController {
 		participation.setWeightCategory(participationDto.getWeightCategory());
 		participationService.saveParticipation(participation);
 		participation.setPlayerStatus(PlayerStatus.NOTOUT);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>("User registered",HttpStatus.OK);
 		}
 	}
 }

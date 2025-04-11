@@ -12,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,7 +60,7 @@ public class AuthController {
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setGender(user.getGender());
-		newUser.setRole(Role.USER);
+		newUser.setRole(user.getRole());
 		newUser.setUsername(user.getUserName());
 		newUser.setPhoneNumber(user.getPhoneNumber());
 		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -69,25 +70,37 @@ public class AuthController {
 		AuthResponse res = new AuthResponse (token,"Register Success",null);
 		return res;
 	}
-	
+
 	@PostMapping("/signin")
 	public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) throws UserException {
-		
-		Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
-		if (authentication.isAuthenticated()) {
-			String token = jwtProvider.generateToken(authentication);
-			User userByEmail = userService.findUserByEmail(loginRequest.getEmail());
-			AuthResponse res = new AuthResponse(token,"success", userByEmail.getRole().toString() );
-			return new ResponseEntity<>(res, HttpStatus.OK);
-		}else {
-			AuthResponse response = new AuthResponse(null, null,"failed" );
+		try {
+			UserDetails userDetails = customUserDetails.loadUserByUsername(loginRequest.getEmail());
+
+			try {
+				Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
+
+				if (authentication.isAuthenticated()) {
+					String token = jwtProvider.generateToken(authentication);
+					User userByEmail = userService.findUserByEmail(loginRequest.getEmail());
+					AuthResponse res = new AuthResponse(token, "success", userByEmail.getRole().toString());
+					return new ResponseEntity<>(res, HttpStatus.OK);
+				}
+			} catch (BadCredentialsException e) {
+				AuthResponse response = new AuthResponse(null, "Incorrect password", "failed");
+				return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+			}
+
+			AuthResponse response = new AuthResponse(null, "Authentication failed", "failed");
 			return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+
+		} catch (UsernameNotFoundException e) {
+			AuthResponse authResponse = new AuthResponse(null, "Incorrect email", null);
+			return new ResponseEntity<>(authResponse, HttpStatus.UNAUTHORIZED);
 		}
 	}
 
 	private Authentication authenticate(String email, String password) {
 		UserDetails userDetails = customUserDetails.loadUserByUsername(email);
-		
 		if (userDetails==null) {
 			throw new BadCredentialsException ("Invalid username");
 		}
