@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface MatchDao extends JpaRepository<Match, Long> {
+public interface MatchDao extends JpaRepository<Match, Integer> {
 
     // Find matches by event ID and weight category
     @Query("SELECT m FROM Match m WHERE m.event.id = :eventId AND m.weightCategory = :weightCategory ORDER BY m.roundNumber")

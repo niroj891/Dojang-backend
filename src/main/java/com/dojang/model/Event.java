@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,13 +49,8 @@ public class Event implements Serializable {
 
 	private String location;
 
-//	@ManyToMany
-//	@JoinTable(name= "registration_tbl", 
-//	joinColumns = @JoinColumn(name="event_id"), 
-//	inverseJoinColumns= @JoinColumn(name="user_id"))
-//	private Set<User> participants = new HashSet<>()
-
 	@OneToMany(mappedBy = "event")
 	@JsonManagedReference
+	@JsonIgnore
 	private List<Participation> registrations = new ArrayList<>();
 }

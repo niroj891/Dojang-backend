@@ -4,11 +4,14 @@ import com.dojang.dao.*;
 import com.dojang.dto.EventRequestDto;
 import com.dojang.exception.UserException;
 import com.dojang.model.*;
+import com.dojang.response.MatchResultResponse;
 import com.dojang.service.EventService;
+import com.dojang.service.MatchService;
 import com.dojang.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +47,14 @@ public class InstructorController {
     private RoundDao roundDao;
 
 
+    @Autowired
+    private  ResultDao resultDao;
+
+
+    @Autowired
+    private MatchService matchService;
+
+
     @PostMapping("/event")
     public ResponseEntity<?> createEvent(@ModelAttribute EventRequestDto eventRequestDto) throws IOException {
         Event event = new Event();
@@ -75,8 +86,9 @@ public class InstructorController {
     @GetMapping("/events/{eventId}/participants")
     public ResponseEntity<List<Participation>> getParticipantsByEventAndWeight(
             @PathVariable Integer eventId,
-            @RequestParam(required = false) WeightCategory weightCategory) {
+            @RequestParam(required = true) WeightCategory weightCategory) {
 
+        System.out.println(weightCategory);
         List<Participation> participants;
         if (weightCategory != null) {
             participants = participationDao.findByEventIdAndWeightCategory(eventId, weightCategory);
@@ -117,79 +129,106 @@ public class InstructorController {
         match.setPlayer2(player2);
         match.setRoundNumber(currentRound);
         match.setMatchDate(new Date());
-        match.setStatus(MatchStatus.SCHEDULED);
+        match.setStatus(MatchStatus.IN_PROGRESS);
 
         return ResponseEntity.ok(matchDao.save(match));
     }
 
-    @PostMapping("/rounds/record")
-    public ResponseEntity<Round> recordRoundResult(
-            @RequestParam Integer matchId,
-            @RequestParam Integer winnerId,
-            @RequestParam Integer loserId) {
+    @PostMapping("/match/result")
+    public ResponseEntity<?> recordMatchResult(@RequestParam Integer matchId,
+                                               @RequestParam Integer winnerId,
+                                               @RequestParam Integer loserId){
+        Match match = matchDao.findById(matchId).orElseThrow(()-> new RuntimeException("match not found"));
+        Participation winner = participationDao.findById(winnerId).orElseThrow(()-> new RuntimeException("Winner not found"));
+        Participation losser = participationDao.findById(loserId).orElseThrow(()-> new RuntimeException("Losser not found"));
+        winner.setPlayerStatus(PlayerStatus.NOTOUT);
+        losser.setPlayerStatus(PlayerStatus.OUT);
+        Result result =  new Result();
+        result.setMatch(match);
+        result.setLosser(losser);
+        result.setWinner(winner);
+        participationDao.save(winner);
+        participationDao.save(losser);
+        matchDao.save(match);
+        resultDao.save(result);
+        match.setStatus(MatchStatus.COMPLETED);
+        return new ResponseEntity<>(HttpStatus.OK);
 
-        Match match = matchDao.findById(Long.valueOf(matchId))
-                .orElseThrow(() -> new RuntimeException("Match not found"));
-
-        Participation winner = participationDao.findById(winnerId)
-                .orElseThrow(() -> new RuntimeException("Winner not found"));
-
-        Participation loser = participationDao.findById(loserId)
-                .orElseThrow(() -> new RuntimeException("Loser not found"));
-
-        // Verify participants are in this match
-        if (!match.getPlayer1().getId().equals(winnerId) &&
-                !match.getPlayer2().getId().equals(winnerId)) {
-            throw new RuntimeException("Winner is not in this match");
-        }
-
-        if (!match.getPlayer1().getId().equals(loserId) &&
-                !match.getPlayer2().getId().equals(loserId)) {
-            throw new RuntimeException("Loser is not in this match");
-        }
-
-        // Update loser status
-        loser.setPlayerStatus(PlayerStatus.OUT);
-        participationDao.save(loser);
-
-        // Determine round number
-        int roundNumber = roundDao.countByMatchId(Long.valueOf(matchId)) + 1;
-
-        // Record round
-        Round round = new Round();
-        round.setMatch(match);
-        round.setRoundNumber(roundNumber);
-        round.setWinner(winner);
-        round.setLoser(loser);
-        round.setEndTime(new Date());
-
-        // Update match status if this is the final round
-        if (roundNumber >= 3) { // Assuming best of 3 rounds
-            match.setStatus(MatchStatus.COMPLETED);
-            matchDao.save(match);
-        }
-
-        return ResponseEntity.ok(roundDao.save(round));
     }
 
-    @PostMapping("/tournaments/reset")
-    public ResponseEntity<String> resetTournament(
-            @RequestParam Integer eventId,
-            @RequestParam WeightCategory weightCategory) {
 
-        List<Participation> participants = participationDao
-                .findByEventIdAndWeightCategory(eventId, weightCategory);
 
-        participants.forEach(p -> {
-            p.setPlayerStatus(PlayerStatus.NOTOUT);
-            participationDao.save(p);
-        });
 
-        // Optionally clear matches and rounds for this event/weight category
-        matchDao.deleteByEventIdAndWeightCategory(eventId, weightCategory);
 
-        return ResponseEntity.ok("Tournament reset successfully");
-    }
+
+//    @PostMapping("/rounds/record")
+//    public ResponseEntity<Round> recordRoundResult(
+//            @RequestParam Integer matchId,
+//            @RequestParam Integer winnerId,
+//            @RequestParam Integer loserId) {
+//
+//        Match match = matchDao.findById(matchId)
+//                .orElseThrow(() -> new RuntimeException("Match not found"));
+//
+//        Participation winner = participationDao.findById(winnerId)
+//                .orElseThrow(() -> new RuntimeException("Winner not found"));
+//
+//        Participation loser = participationDao.findById(loserId)
+//                .orElseThrow(() -> new RuntimeException("Loser not found"));
+//
+//        // Verify participants are in this match
+//        if (!match.getPlayer1().getId().equals(winnerId) &&
+//                !match.getPlayer2().getId().equals(winnerId)) {
+//            throw new RuntimeException("Winner is not in this match");
+//        }
+//
+//        if (!match.getPlayer1().getId().equals(loserId) &&
+//                !match.getPlayer2().getId().equals(loserId)) {
+//            throw new RuntimeException("Loser is not in this match");
+//        }
+//
+//        // Update loser status
+//        loser.setPlayerStatus(PlayerStatus.OUT);
+//        participationDao.save(loser);
+//
+//        // Determine round number
+//        int roundNumber = roundDao.countByMatchId(Long.valueOf(matchId)) + 1;
+//
+//        // Record round
+//        Round round = new Round();
+//        round.setMatch(match);
+//        round.setRoundNumber(roundNumber);
+//        round.setWinner(winner);
+//        round.setLoser(loser);
+//        round.setEndTime(new Date());
+//
+//        // Update match status if this is the final round
+//        if (roundNumber >= 3) { // Assuming best of 3 rounds
+//            match.setStatus(MatchStatus.COMPLETED);
+//            matchDao.save(match);
+//        }
+//
+//        return ResponseEntity.ok(roundDao.save(round));
+//    }
+
+//    @PostMapping("/tournaments/reset")
+//    public ResponseEntity<String> resetTournament(
+//            @RequestParam Integer eventId,
+//            @RequestParam WeightCategory weightCategory) {
+//
+//        List<Participation> participants = participationDao
+//                .findByEventIdAndWeightCategory(eventId, weightCategory);
+//
+//        participants.forEach(p -> {
+//            p.setPlayerStatus(PlayerStatus.NOTOUT);
+//            participationDao.save(p);
+//        });
+//
+//        // Optionally clear matches and rounds for this event/weight category
+//        matchDao.deleteByEventIdAndWeightCategory(eventId, weightCategory);
+//
+//        return ResponseEntity.ok("Tournament reset successfully");
+//    }
 
     @GetMapping("/tournaments/progress")
     public ResponseEntity<Map<String, Object>> getTournamentProgress(
@@ -209,6 +248,22 @@ public class InstructorController {
         response.put("winner", remainingParticipants.size() == 1 ? remainingParticipants.get(0) : null);
 
         return ResponseEntity.ok(response);
+    }
+
+
+
+    @GetMapping("/events/{eventId}/match-results")
+    public ResponseEntity<List<MatchResultResponse>> getMatchResults(
+            @PathVariable Integer eventId,
+            @RequestParam WeightCategory weightCategory) {
+
+        // If weight category is not provided, you might want to handle it differently
+        if (weightCategory == null) {
+            throw new RuntimeException("Weight category is required");
+        }
+
+        List<MatchResultResponse> results = matchService.getMatchResultsWithPlayers(eventId, weightCategory);
+        return ResponseEntity.ok(results);
     }
 }
 

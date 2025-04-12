@@ -1,13 +1,21 @@
 package com.dojang.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Participation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -35,4 +43,13 @@ public class Participation {
 
 	@Enumerated(EnumType.STRING)
 	private PlayerStatus playerStatus = PlayerStatus.NOTOUT;
+
+
+	@OneToMany(mappedBy = "winner")
+	@JsonManagedReference
+	private List<Result> winnerResults = new ArrayList<>();
+
+	@OneToMany(mappedBy = "losser")
+	@JsonManagedReference
+	private List<Result> losserResults = new ArrayList<>();
 }

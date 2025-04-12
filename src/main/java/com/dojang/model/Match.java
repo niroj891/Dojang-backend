@@ -1,4 +1,5 @@
 package com.dojang.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.List;
 public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
@@ -34,8 +35,9 @@ public class Match {
 
     private Date matchDate;
 
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
-    private List<Round> rounds;
+    @OneToOne(mappedBy = "match")
+    @JsonManagedReference
+    private  Result result;
 
     @Enumerated(EnumType.STRING)
     private MatchStatus status = MatchStatus.IN_PROGRESS;
