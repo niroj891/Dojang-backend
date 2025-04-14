@@ -1,5 +1,6 @@
 package com.dojang.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class PostController {
 	
 	@PostMapping
 	public ResponseEntity<PostDto> createPostHandler(@RequestBody Post post,
-			@RequestHeader("Authorization") String token) throws UserException, PostException{
+			@RequestHeader("Authorization") String token) throws UserException, PostException, IOException {
 		
 		System.out.println("create post ---- "+post.getCaption());
 		
@@ -129,8 +130,4 @@ public class PostController {
 		return new ResponseEntity<>(postDto, HttpStatus.CREATED);
 		
 	}
-	
-	
-
-
 }

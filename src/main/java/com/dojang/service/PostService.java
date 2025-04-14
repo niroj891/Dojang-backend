@@ -1,5 +1,6 @@
 package com.dojang.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.dojang.exception.PostException;
@@ -8,7 +9,7 @@ import com.dojang.model.Post;
 
 public interface PostService {
 	
-public Post createPost(Post post, Integer userId) throws UserException, PostException;
+public Post createPost(Post post, Integer userId) throws UserException, PostException, IOException;
 	
 	public String deletePost(Integer postId, Integer userId) throws UserException,PostException;
 	

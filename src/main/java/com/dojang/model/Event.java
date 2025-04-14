@@ -51,6 +51,5 @@ public class Event implements Serializable {
 
 	@OneToMany(mappedBy = "event")
 	@JsonManagedReference
-	@JsonIgnore
 	private List<Participation> registrations = new ArrayList<>();
 }

@@ -36,5 +36,19 @@ public interface MatchDao extends JpaRepository<Match, Integer> {
             @Param("eventId") Integer eventId,
             @Param("weightCategory") WeightCategory weightCategory);
 
+    // Here is solution for our recurring winner for this
+
+    @Query("SELECT m FROM Match m WHERE m.event.id = :eventId AND m.weightCategory = :weightCategory AND m.roundNumber = :roundNumber")
+    List<Match> findByEventIdAndWeightCategoryAndRoundNumber(
+            @Param("eventId") Integer eventId,
+            @Param("weightCategory") WeightCategory weightCategory,
+            @Param("roundNumber") Integer roundNumber);
+
+
+    @Query("SELECT m FROM Match m WHERE m.event.eventId = :eventId AND m.weightCategory = :weightCategory ORDER BY m.matchDate DESC")
+    List<Match> findByEventAndWeightCategoryOrderByDateDesc(
+            @Param("eventId") Integer eventId,
+            @Param("weightCategory") WeightCategory weightCategory);
+
 
 }

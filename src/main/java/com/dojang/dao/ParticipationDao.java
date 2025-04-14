@@ -37,4 +37,13 @@ public interface ParticipationDao extends JpaRepository<Participation, Integer> 
     @Transactional
     @Query("UPDATE Participation p SET p.playerStatus = 'NOTOUT' WHERE p.event.id = :eventId AND p.weightCategory = :weightCategory")
     void resetAllParticipantsStatus(Integer eventId, WeightCategory weightCategory);
+
+
+    @Query("SELECT p FROM Participation p " +
+            "WHERE p.playerStatus = com.dojang.model.PlayerStatus.NOTOUT " +
+            "AND (SELECT COUNT(p2) FROM Participation p2 " +
+            "     WHERE p2.event.eventId = p.event.eventId " +
+            "     AND p2.weightCategory = p.weightCategory " +
+            "     AND p2.playerStatus = com.dojang.model.PlayerStatus.NOTOUT) = 1")
+    List<Participation> findSingleRemainingParticipants();
 }

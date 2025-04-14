@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/instructor")
@@ -98,6 +100,73 @@ public class InstructorController {
         return ResponseEntity.ok(participants);
     }
 
+
+
+    @PostMapping("/matches/create")
+public ResponseEntity<Match> createMatch(
+        @RequestParam Integer eventId,
+        @RequestParam WeightCategory weightCategory) {
+
+    Event event = eventDao.findById(eventId)
+            .orElseThrow(() -> new RuntimeException("Event not found"));
+
+    // Determine current round number
+    int currentRound = matchDao.findMaxRoundByEventAndWeightCategory(eventId, weightCategory)
+            .orElse(0) + 1;
+
+    // Get all NOTOUT participants
+    List<Participation> availableParticipants = participationDao
+            .findByEventIdAndWeightCategoryAndPlayerStatus(eventId, weightCategory, PlayerStatus.NOTOUT);
+
+    if (availableParticipants.size() < 2) {
+        throw new RuntimeException("Not enough participants available");
+    }
+
+    // Get participants who already fought in the current round
+    List<Match> matchesInCurrentRound = matchDao.findByEventIdAndWeightCategoryAndRoundNumber(eventId, weightCategory, currentRound);
+
+    Set<Long> alreadyFoughtParticipantIds = matchesInCurrentRound.stream()
+            .flatMap(match -> Stream.of(match.getPlayer1().getId(), match.getPlayer2().getId()))
+            .collect(Collectors.toSet());
+
+    // Filter out participants who already fought in this round
+    List<Participation> eligibleParticipants = availableParticipants.stream()
+            .filter(p -> !alreadyFoughtParticipantIds.contains(p.getId()))
+            .collect(Collectors.toList());
+
+    if (eligibleParticipants.size() < 2) {
+        throw new RuntimeException("Not enough eligible participants for this round");
+    }
+
+    // Shuffle and pick 2 random participants
+    Collections.shuffle(eligibleParticipants);
+    Participation player1 = eligibleParticipants.get(0);
+    Participation player2 = eligibleParticipants.get(1);
+
+    Match match = new Match();
+    match.setEvent(event);
+    match.setWeightCategory(weightCategory);
+    match.setPlayer1(player1);
+    match.setPlayer2(player2);
+    match.setRoundNumber(currentRound);
+    match.setMatchDate(new Date());
+    match.setStatus(MatchStatus.IN_PROGRESS);
+
+    return ResponseEntity.ok(matchDao.save(match));
+}
+
+
+
+
+
+
+
+
+
+
+
+    /*
+
     @PostMapping("/matches/create")
     public ResponseEntity<Match> createMatch(
             @RequestParam Integer eventId,
@@ -133,6 +202,15 @@ public class InstructorController {
 
         return ResponseEntity.ok(matchDao.save(match));
     }
+
+
+
+
+
+
+    */
+
+
 
     @PostMapping("/match/result")
     public ResponseEntity<?> recordMatchResult(@RequestParam Integer matchId,
@@ -266,7 +344,3 @@ public class InstructorController {
         return ResponseEntity.ok(results);
     }
 }
-
-
-
-
