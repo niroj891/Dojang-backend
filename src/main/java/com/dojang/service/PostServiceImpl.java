@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.dojang.model.Event;
+import com.dojang.model.Like;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -172,7 +173,10 @@ public class PostServiceImpl implements PostService {
 		else {
 			post.getLiked().remove(user);
 		}
-	
+
+//		Like like = new Like();
+//		like.setPost(post);
+//		like.setUser(user);
 		return postDao.save(post);
 	}
 

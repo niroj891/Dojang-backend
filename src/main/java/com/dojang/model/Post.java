@@ -59,7 +59,11 @@ public class Post implements Serializable{
 	
 	@ManyToMany
 	@JsonIgnore
-	private Set<User> liked= new HashSet<>(); 
+	private Set<User> liked= new HashSet<>();
+
+	@OneToMany(mappedBy = "post")
+	@JsonManagedReference
+	private List<Like> likes = new ArrayList<>();
 	
 	
 }

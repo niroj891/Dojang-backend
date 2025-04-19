@@ -1,5 +1,6 @@
 package com.dojang.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import lombok.Setter;
 @Table(name="user_table")
 public class User  implements Serializable{
 	
+	@Serial
 	private static final long serialVersionUID = 934839458398500L;
 	@Id 
 	@Column(name="user_id")	
@@ -75,6 +77,11 @@ public class User  implements Serializable{
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference
 	private List<Comments> comments = new ArrayList<>();
+
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private List<Like> likes = new ArrayList<>();
 	
 
 }
