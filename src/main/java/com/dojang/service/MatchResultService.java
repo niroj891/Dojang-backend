@@ -24,10 +24,6 @@ public class MatchResultService {
 
     @Autowired
     private ResultDao resultDao;
-
-
-
-
 //    /**
 //     * Declare winner for a match and record the result.
 //     */
@@ -84,8 +80,8 @@ public class MatchResultService {
             results.add(new ParticipationResultDto(
                     lastMatch.getResult().getWinner(),
                     "FIRST_WINNER (Last Match Winner)", lastMatch.getEvent().getTitle(),
-                    lastMatch.getEvent().getInstructor().getFirstName()+" "+lastMatch.getEvent()
-                            .getInstructor().getLastName()
+                    lastMatch.getEvent().getInstructor().getFirstName()+" "+ lastMatch.getEvent().getInstructor().getLastName(),lastMatch.getEvent().getEventDate(),
+                            lastMatch.getResult().getLosser().getUser().getImage()
             ));
         }
 
@@ -95,7 +91,7 @@ public class MatchResultService {
                     lastMatch.getResult().getLosser(),
                     "SECOND_WINNER (Last Match Loser)",lastMatch.getEvent().getTitle(),
                     lastMatch.getEvent().getInstructor().getFirstName()+" "+lastMatch.getEvent()
-                            .getInstructor().getLastName()
+                            .getInstructor().getLastName(),lastMatch.getEvent().getEventDate(),lastMatch.getResult().getLosser().getUser().getImage()
             ));
         }
 
@@ -106,12 +102,11 @@ public class MatchResultService {
                     matches.get(1).getResult().getLosser(),
                     "THIRD_WINNER (Second Last Match Loser)", lastMatch.getEvent().getTitle(),
                     lastMatch.getEvent().getInstructor().getFirstName()+" "+lastMatch.getEvent()
-                            .getInstructor().getLastName()
+                            .getInstructor().getLastName(),lastMatch.getEvent().getEventDate(),matches.get(1).getResult().getLosser().getUser().getImage()
             ));
         }
 
         return results;
     }
-
 
 }

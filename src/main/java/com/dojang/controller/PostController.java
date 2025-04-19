@@ -65,6 +65,18 @@ public class PostController {
 		
 		return new ResponseEntity<>(postDtos,HttpStatus.OK);
 	}
+
+	@GetMapping("/user")
+	public ResponseEntity<List<PostDto>> findAllPostByUser(
+			@RequestHeader("Authorization") String token) throws PostException, UserException{
+		User user=userService.findUserProfileByJwt(token);
+		List<Post> posts=postService.findAllPost();
+		posts = posts.stream().filter(post -> post.getUser().getId().equals(user.getId())).toList();
+		List<PostDto> postDtos=PostDtoMapper.toPostDtos(posts,user);
+
+		return new ResponseEntity<>(postDtos,HttpStatus.OK);
+	}
+
 	
 	@GetMapping("/{postId}")
 	public ResponseEntity<PostDto> findPostByIdHandler(@PathVariable Integer postId,

@@ -1,10 +1,12 @@
 package com.dojang.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import com.dojang.exception.UserException;
 import com.dojang.model.User;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 	
@@ -21,6 +23,8 @@ public interface UserService {
 	public void deleteUser(User user);
 	
 	public List<User> findAll();
+
+	public String changeUserProfile(User user, MultipartFile image) throws IOException;
 	
 	
 	

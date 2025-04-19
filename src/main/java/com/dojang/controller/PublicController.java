@@ -44,7 +44,6 @@ public class PublicController {
 
     @GetMapping("/leaderboard")
     public List<List<ParticipationResultDto>> ahsjasa(){
-
         List<Participation> participations = participationDao.findSingleRemainingParticipants();
         System.out.println("Participants count:-----------------"+participations.size());
         List<List<ParticipationResultDto>> listOfWinnerOfCompletedEvent = new ArrayList<>();
