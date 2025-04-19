@@ -31,6 +31,8 @@ public class Match {
     @JoinColumn(name = "player2_id")
     private Participation player2;
 
+
+
     private int roundNumber;
 
     private Date matchDate;

@@ -21,6 +21,8 @@ private Integer id;
 	
 	private String image;
 
+	private String video;
+
 	private LocalDateTime createdAt;
 	
 	private UserDto user;

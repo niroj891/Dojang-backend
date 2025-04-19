@@ -30,24 +30,8 @@ public class PostServiceImpl implements PostService {
 	
 	@Autowired
 	private UserDao userDao;
-
-	@Override
-	public Post createPost(Post post, Integer userId) throws UserException, IOException {
-		User user = userService.findUserById(userId);
-		
-
-		Post newPost =new Post();
-		newPost.setUser(user);
-		newPost.setCaption(post.getCaption());
-		newPost.setCreatedAt(LocalDateTime.now());
-		String imageName = savePostImage(newPost.getImageFile());
-		newPost.setImage(imageName);
-		newPost.setVideo(post.getVideo());
-		Post createdPost =postDao.save(newPost);
-
-		return createdPost;
-	}
-
+	
+	
 	public String savePostImage(MultipartFile image) throws IOException {
 		String desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
 		File directory = new File(desktopPath, "dojang_app/images/post");
@@ -59,8 +43,6 @@ public class PostServiceImpl implements PostService {
 		if (image == null || image.getOriginalFilename() == null || image.getOriginalFilename().isBlank()) {
 			throw new IllegalArgumentException("Invalid file");
 		}
-
-
 		String savingName = image.getOriginalFilename().substring(image.getOriginalFilename().lastIndexOf('.'));
 		String randomFileName = UUID.randomUUID().toString();
 		savingName  = randomFileName+ savingName;
@@ -70,6 +52,50 @@ public class PostServiceImpl implements PostService {
 		return savingName;
 
 	}
+	
+	
+
+	@Override
+	public Post createPost(Post post, Integer userId) throws UserException, IOException {
+		User user = userService.findUserById(userId);
+		Post newPost =new Post();
+		newPost.setUser(user);
+		newPost.setCaption(post.getCaption());
+		newPost.setCreatedAt(LocalDateTime.now());
+		if (post.getImageFile()!=null){
+			String imageName = savePostImage(post.getImageFile());
+			newPost.setImage(imageName);
+		}
+
+		if (post.getVideoFile()!=null) {
+			String videoName = saveVideo(post.getVideoFile());
+			newPost.setVideo(videoName);
+		}
+        return postDao.save(newPost);
+	}
+
+	public String saveVideo(MultipartFile videoFile) throws IOException {
+		String desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+		File directory = new File(desktopPath, "dojang_app/videos/post");
+
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+
+		if (videoFile == null || videoFile.getOriginalFilename() == null || videoFile.getOriginalFilename().isBlank()) {
+			throw new IllegalArgumentException("Invalid file");
+		}
+		String savingName = videoFile.getOriginalFilename().substring(videoFile.getOriginalFilename().lastIndexOf('.'));
+		String randomFileName = UUID.randomUUID().toString();
+		savingName  = randomFileName+ savingName;
+		File uploadFile = new File(directory, savingName);
+		videoFile.transferTo(uploadFile);
+		return savingName;
+
+
+	}
+
+	
 
 
 

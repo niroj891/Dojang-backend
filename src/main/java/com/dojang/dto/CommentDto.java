@@ -18,11 +18,5 @@ public class CommentDto {
 private Integer id;
 	
 	private String content;
-	
-	private UserDto user;
-
-	private List<UserDto> liked= new ArrayList<>();
-	
-	private LocalDateTime createdAt;
 
 }

@@ -103,57 +103,86 @@ public class InstructorController {
 
 
     @PostMapping("/matches/create")
-public ResponseEntity<Match> createMatch(
-        @RequestParam Integer eventId,
-        @RequestParam WeightCategory weightCategory) {
+    public ResponseEntity<Match> createMatch(
+            @RequestParam Integer eventId,
+            @RequestParam WeightCategory weightCategory) {
 
-    Event event = eventDao.findById(eventId)
-            .orElseThrow(() -> new RuntimeException("Event not found"));
+        Event event = eventDao.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
 
-    // Determine current round number
-    int currentRound = matchDao.findMaxRoundByEventAndWeightCategory(eventId, weightCategory)
-            .orElse(0) + 1;
+        // Find max round number so far
+        int currentRound = matchDao.findMaxRoundByEventAndWeightCategory(eventId, weightCategory)
+                .orElse(0);
 
-    // Get all NOTOUT participants
-    List<Participation> availableParticipants = participationDao
-            .findByEventIdAndWeightCategoryAndPlayerStatus(eventId, weightCategory, PlayerStatus.NOTOUT);
+        // Get all NOTOUT participants
+        List<Participation> availableParticipants = participationDao
+                .findByEventIdAndWeightCategoryAndPlayerStatus(eventId, weightCategory, PlayerStatus.NOTOUT);
 
-    if (availableParticipants.size() < 2) {
-        throw new RuntimeException("Not enough participants available");
+        if (availableParticipants.size() < 2) {
+            throw new RuntimeException("Not enough participants available");
+        }
+
+        // Get matches in the current round
+        List<Match> matchesInCurrentRound = matchDao.findByEventIdAndWeightCategoryAndRoundNumber(eventId, weightCategory, currentRound);
+
+        // Participants who already fought in this round
+        Set<Long> alreadyFoughtParticipantIds = matchesInCurrentRound.stream()
+                .flatMap(match -> Stream.of(match.getPlayer1().getId(), match.getPlayer2().getId()))
+                .collect(Collectors.toSet());
+
+        // Eligible participants who haven't fought in this round
+        List<Participation> eligibleParticipants = availableParticipants.stream()
+                .filter(p -> !alreadyFoughtParticipantIds.contains(p.getId()))
+                .collect(Collectors.toList());
+
+        // Find waiting participants (winners of previous matches in current round)
+        List<Participation> waitingParticipants = new ArrayList<>();
+
+        for (Match match : matchesInCurrentRound) {
+            Optional<Result> resultOpt = resultDao.findByMatchId(Long.valueOf(match.getId()));
+            resultOpt.ifPresent(result -> {
+                if (result.getWinner() != null) {
+                    waitingParticipants.add(result.getWinner());
+                }
+            });
+        }
+
+        // If eligible participants < 2 and waiting participants >= 2 — start new round
+        if (eligibleParticipants.size() < 2) {
+            if (waitingParticipants.size() >= 2) {
+                currentRound++; // move to next round
+                eligibleParticipants.clear();
+                eligibleParticipants.addAll(waitingParticipants);
+                waitingParticipants.clear();
+            } else {
+                throw new RuntimeException("Not enough eligible participants for a match.");
+            }
+        }
+
+        if (eligibleParticipants.size() < 2) {
+            throw new RuntimeException("Not enough eligible participants for a match.");
+        }
+
+        // Shuffle and pick 2 random participants
+        Collections.shuffle(eligibleParticipants);
+        Participation player1 = eligibleParticipants.get(0);
+        Participation player2 = eligibleParticipants.get(1);
+
+        // Create match
+        Match match = new Match();
+        match.setEvent(event);
+        match.setWeightCategory(weightCategory);
+        match.setPlayer1(player1);
+        match.setPlayer2(player2);
+
+        // Now set roundNumber starting from 1
+        match.setRoundNumber(currentRound == 0 ? 1 : currentRound);
+        match.setMatchDate(new Date());
+        match.setStatus(MatchStatus.IN_PROGRESS);
+
+        // Save and return
+        return ResponseEntity.ok(matchDao.save(match));
     }
-
-    // Get participants who already fought in the current round
-    List<Match> matchesInCurrentRound = matchDao.findByEventIdAndWeightCategoryAndRoundNumber(eventId, weightCategory, currentRound);
-
-    Set<Long> alreadyFoughtParticipantIds = matchesInCurrentRound.stream()
-            .flatMap(match -> Stream.of(match.getPlayer1().getId(), match.getPlayer2().getId()))
-            .collect(Collectors.toSet());
-
-    // Filter out participants who already fought in this round
-    List<Participation> eligibleParticipants = availableParticipants.stream()
-            .filter(p -> !alreadyFoughtParticipantIds.contains(p.getId()))
-            .collect(Collectors.toList());
-
-    if (eligibleParticipants.size() < 2) {
-        throw new RuntimeException("Not enough eligible participants for this round");
-    }
-
-    // Shuffle and pick 2 random participants
-    Collections.shuffle(eligibleParticipants);
-    Participation player1 = eligibleParticipants.get(0);
-    Participation player2 = eligibleParticipants.get(1);
-
-    Match match = new Match();
-    match.setEvent(event);
-    match.setWeightCategory(weightCategory);
-    match.setPlayer1(player1);
-    match.setPlayer2(player2);
-    match.setRoundNumber(currentRound);
-    match.setMatchDate(new Date());
-    match.setStatus(MatchStatus.IN_PROGRESS);
-
-    return ResponseEntity.ok(matchDao.save(match));
-}
 
 
 
@@ -230,6 +259,7 @@ public ResponseEntity<Match> createMatch(
         matchDao.save(match);
         resultDao.save(result);
         match.setStatus(MatchStatus.COMPLETED);
+        matchDao.save(match);
         return new ResponseEntity<>(HttpStatus.OK);
 
     }

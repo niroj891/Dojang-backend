@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,16 +44,21 @@ public class Post implements Serializable{
 	private String location;
 	
 	private LocalDateTime createdAt;
+
+	@Transient
+	private  MultipartFile videoFile;
 	
 	
 	@ManyToOne
 	@JsonBackReference
 	private User user;
 	
-	@OneToMany
+	@OneToMany(mappedBy = "post")
+	@JsonManagedReference
 	private List<Comments> comments=new ArrayList<Comments>();
 	
 	@ManyToMany
+	@JsonIgnore
 	private Set<User> liked= new HashSet<>(); 
 	
 	

@@ -20,8 +20,6 @@ public class CommentDtoMapper {
 		commentDto.setContent(comment.getContent());
 		//commentDto.setCreatedAt(comment.getCreatedAt());
 		commentDto.setId(comment.getId());
-		commentDto.setLiked(userDtos);
-		commentDto.setUser(userDto);
 		
 		return commentDto;
 	}

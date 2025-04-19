@@ -20,7 +20,6 @@ public static PostDto toPostDto(Post post,User user) {
 		List<CommentDto> comments=CommentDtoMapper.toCommentDtos(post.getComments());
 		
 		PostDto postDto=new PostDto();
-		
 		postDto.setCaption(post.getCaption());
 		postDto.setCreatedAt(post.getCreatedAt());
 		postDto.setId(post.getId());
@@ -28,6 +27,8 @@ public static PostDto toPostDto(Post post,User user) {
 		postDto.setUser(userDto);
 		postDto.setLiked(userDtos);
 		postDto.setComments(comments);
+		postDto.setVideo(post.getVideo());
+
 		postDto.setLikedByRequser(PostUtil.isLikedByReqUser(post, user));
 		postDto.setSavedByRequser(PostUtil.isSaved(post, user));
 		

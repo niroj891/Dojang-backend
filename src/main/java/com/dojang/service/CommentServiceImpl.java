@@ -40,12 +40,9 @@ public class CommentServiceImpl implements CommentService {
 		
 		comment.setUser(user);
 		comment.setCreatedAt(LocalDateTime.now());
+		comment.setPost(post);
 		Comments newComment= commentDao.save(comment);
-		
-		post.getComments().add(newComment);
-		
-		postDao.save(post);
-		
+
 		return newComment;
 	}
 
