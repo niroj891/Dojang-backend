@@ -213,5 +213,11 @@ public class UserServiceImpl implements UserService {
 		return savingName;
 	}
 
+	// In UserService.java
+	public List<User> findUsersByNameContaining(String name) {
+		// Search for first name or last name containing the input string (case insensitive)
+		return userDao.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name);
+	}
+
 
 }

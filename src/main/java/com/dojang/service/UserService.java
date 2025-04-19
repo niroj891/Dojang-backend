@@ -25,8 +25,10 @@ public interface UserService {
 	public List<User> findAll();
 
 	public String changeUserProfile(User user, MultipartFile image) throws IOException;
-	
-	
-	
+	List<User> findUsersByNameContaining(String name);
+
+
+
+
 
 }

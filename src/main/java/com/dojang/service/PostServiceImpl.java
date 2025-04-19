@@ -3,6 +3,7 @@ package com.dojang.service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -176,6 +177,27 @@ public class PostServiceImpl implements PostService {
 //		like.setPost(post);
 //		like.setUser(user);
 		return postDao.save(post);
+	}
+
+
+	// In PostService.java
+	public List<Post> findPostsByUserName(String name) throws PostException {
+		// Search by first name or last name containing the input string (case insensitive)
+		List<User> users = userService.findUsersByNameContaining(name);
+		if(users.isEmpty()) {
+			return  new ArrayList<Post>();
+		}
+
+		List<Post> posts = new ArrayList<>();
+		for(User user : users) {
+			posts.addAll(postDao.findByUser(user));
+		}
+
+		if(posts.isEmpty()) {
+			return new ArrayList<Post>();
+		}
+
+		return posts;
 	}
 
 }

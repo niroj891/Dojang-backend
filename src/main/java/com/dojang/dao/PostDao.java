@@ -2,6 +2,7 @@ package com.dojang.dao;
 
 import java.util.List;
 
+import com.dojang.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +20,7 @@ public interface PostDao extends JpaRepository <Post, Integer>{
     public List<Post> findAllPostByUserIdsSortedByDateDesc(@Param("users") List<Integer> userIds);
     
     List<Post> findAllByOrderByCreatedAtDesc();
+    List<Post> findByUser(User user);
 
 
 }

@@ -23,4 +23,6 @@ public Post createPost(Post post, Integer userId) throws UserException, PostExce
 	
 	public Post likePost(Integer postId ,Integer userId) throws UserException, PostException;
 
+	List<Post> findPostsByUserName(String name) throws PostException;
+
 }
