@@ -15,12 +15,11 @@ public class CommentDtoMapper {
 		UserDto userDto=UserDtoMapper.userDTO(comment.getUser());
 		List<User> likedUsers=new ArrayList<>(comment.getLiked());
 		List<UserDto> userDtos = UserDtoMapper.userDTOS(likedUsers);
-		
 		CommentDto commentDto=new CommentDto();
 		commentDto.setContent(comment.getContent());
 		//commentDto.setCreatedAt(comment.getCreatedAt());
+		commentDto.setFullName(comment.getUser().getFirstName()+" "+comment.getUser().getLastName());
 		commentDto.setId(comment.getId());
-		
 		return commentDto;
 	}
 	

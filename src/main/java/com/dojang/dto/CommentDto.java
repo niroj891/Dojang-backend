@@ -19,4 +19,6 @@ private Integer id;
 	
 	private String content;
 
+	private String fullName;
+
 }
