@@ -3,6 +3,7 @@ package com.dojang.service;
 import com.dojang.dao.MatchDao;
 import com.dojang.dao.ParticipationDao;
 import com.dojang.dao.ResultDao;
+import com.dojang.dto.ParticipationResultDto;
 import com.dojang.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -82,7 +83,9 @@ public class MatchResultService {
         if (lastMatch.getResult() != null && lastMatch.getResult().getWinner() != null) {
             results.add(new ParticipationResultDto(
                     lastMatch.getResult().getWinner(),
-                    "FIRST_WINNER (Last Match Winner)"
+                    "FIRST_WINNER (Last Match Winner)", lastMatch.getEvent().getTitle(),
+                    lastMatch.getEvent().getInstructor().getFirstName()+" "+lastMatch.getEvent()
+                            .getInstructor().getLastName()
             ));
         }
 
@@ -90,7 +93,9 @@ public class MatchResultService {
         if (lastMatch.getResult() != null && lastMatch.getResult().getLosser() != null) {
             results.add(new ParticipationResultDto(
                     lastMatch.getResult().getLosser(),
-                    "SECOND_WINNER (Last Match Loser)"
+                    "SECOND_WINNER (Last Match Loser)",lastMatch.getEvent().getTitle(),
+                    lastMatch.getEvent().getInstructor().getFirstName()+" "+lastMatch.getEvent()
+                            .getInstructor().getLastName()
             ));
         }
 
@@ -99,18 +104,14 @@ public class MatchResultService {
                 && matches.get(1).getResult().getLosser() != null) {
             results.add(new ParticipationResultDto(
                     matches.get(1).getResult().getLosser(),
-                    "THIRD_WINNER (Second Last Match Loser)"
+                    "THIRD_WINNER (Second Last Match Loser)", lastMatch.getEvent().getTitle(),
+                    lastMatch.getEvent().getInstructor().getFirstName()+" "+lastMatch.getEvent()
+                            .getInstructor().getLastName()
             ));
         }
 
         return results;
     }
 
-    // DTO to hold the result
-    @Getter
-    @AllArgsConstructor
-    public static class ParticipationResultDto {
-        private Participation participation;
-        private String position;
-    }
+
 }

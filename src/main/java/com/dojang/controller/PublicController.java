@@ -1,6 +1,7 @@
 package com.dojang.controller;
 
 import com.dojang.dao.ParticipationDao;
+import com.dojang.dto.ParticipationResultDto;
 import com.dojang.model.*;
 import com.dojang.service.EventService;
 import com.dojang.service.MatchResultService;
@@ -42,13 +43,13 @@ public class PublicController {
     }
 
     @GetMapping("/leaderboard")
-    public List<List<MatchResultService.ParticipationResultDto>> ahsjasa(){
+    public List<List<ParticipationResultDto>> ahsjasa(){
 
         List<Participation> participations = participationDao.findSingleRemainingParticipants();
         System.out.println("Participants count:-----------------"+participations.size());
-        List<List<MatchResultService.ParticipationResultDto>> listOfWinnerOfCompletedEvent = new ArrayList<>();
+        List<List<ParticipationResultDto>> listOfWinnerOfCompletedEvent = new ArrayList<>();
         for (Participation participation:participations){
-            List<MatchResultService.ParticipationResultDto> recentWinners = matchResultService.getRecentWinners(participation.getEvent().getEventId(), participation.getWeightCategory());
+            List<ParticipationResultDto> recentWinners = matchResultService.getRecentWinners(participation.getEvent().getEventId(), participation.getWeightCategory());
             listOfWinnerOfCompletedEvent.add(recentWinners);
         }
         return listOfWinnerOfCompletedEvent;

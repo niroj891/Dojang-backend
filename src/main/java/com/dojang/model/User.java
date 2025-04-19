@@ -78,10 +78,4 @@ public class User  implements Serializable{
 	@JsonManagedReference
 	private List<Comments> comments = new ArrayList<>();
 
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonManagedReference
-	private List<Like> likes = new ArrayList<>();
-	
-
 }
