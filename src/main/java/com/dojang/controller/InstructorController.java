@@ -1,13 +1,14 @@
 package com.dojang.controller;
 
 import com.dojang.dao.*;
+import com.dojang.dto.EventParticipantsByWeightDTO;
 import com.dojang.dto.EventRequestDto;
+import com.dojang.dto.EventResponseDto;
+import com.dojang.dto.EventStatusDTO;
 import com.dojang.exception.UserException;
 import com.dojang.model.*;
 import com.dojang.response.MatchResultResponse;
-import com.dojang.service.EventService;
-import com.dojang.service.MatchService;
-import com.dojang.service.UserService;
+import com.dojang.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class InstructorController {
 
 
     @Autowired
-    private EventService eventService;
+    private EventServiceImpl eventService;
 
 
     @Autowired
@@ -57,17 +58,22 @@ public class InstructorController {
     private MatchService matchService;
 
 
+    @Autowired
+    private DashboardService dashboardService;
+
+
     @PostMapping("/event")
     public ResponseEntity<?> createEvent(@ModelAttribute EventRequestDto eventRequestDto) throws IOException {
         Event event = new Event();
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User instructor = userDao.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         System.out.println(email);
-        event.setEventDate(new Date());
+        event.setEventDate(eventRequestDto.getEventDate());
         event.setInstructor(instructor);
         event.setDescription(eventRequestDto.getDescription());
         event.setTitle(eventRequestDto.getTitle());
         event.setEndDate(eventRequestDto.getEndDate());
+        event.setLocation(eventRequestDto.getLocation());
         String message = eventService.createEvent(event, eventRequestDto.getImageFile());
         // event.set
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -82,7 +88,8 @@ public class InstructorController {
             throw new UserException("User not found");
         }
         List<Event> list = eventDao.findAll().stream().filter(event -> event.getInstructor().getEmail().equals(email)).toList();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        List<EventResponseDto> list1 = list.stream().map(event -> new EventResponseDto(event)).toList();
+        return new ResponseEntity<>(list1, HttpStatus.OK);
     }
 
     @GetMapping("/events/{eventId}/participants")
@@ -372,5 +379,40 @@ public class InstructorController {
 
         List<MatchResultResponse> results = matchService.getMatchResultsWithPlayers(eventId, weightCategory);
         return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/participants-by-weight")
+    public ResponseEntity<List<EventParticipantsByWeightDTO>> getParticipantsByWeightForInstructor(
+           ) throws UserException {
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        User userByEmail = userService.findUserByEmail(name);
+        List<EventParticipantsByWeightDTO> result = dashboardService.getParticipantsByWeightForInstructorEvents(userByEmail.getId());
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<List<EventStatusDTO>> getUpcomingAndRunningEvents(
+            ) throws UserException {
+        List<EventStatusDTO> events = eventService.getUpcomingAndRunningEvents(getInstructorId());
+        return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/upcoming-count")
+    public ResponseEntity<Long> countUpcomingEvents(
+            ) throws UserException {
+        long count = eventService.countUpcomingEvents(getInstructorId());
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/running-count")
+    public ResponseEntity<Long> countRunningEvents(
+            ) throws UserException {
+        long count = eventService.countRunningEvents(getInstructorId());
+        return ResponseEntity.ok(count);
+    }
+
+
+    public int getInstructorId() throws UserException {
+       return userService.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).getId();
     }
 }

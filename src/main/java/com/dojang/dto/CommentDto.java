@@ -21,4 +21,6 @@ private Integer id;
 
 	private String fullName;
 
+	private String imageUrl;
+
 }

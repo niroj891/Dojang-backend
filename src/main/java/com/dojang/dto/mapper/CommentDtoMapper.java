@@ -20,6 +20,7 @@ public class CommentDtoMapper {
 		//commentDto.setCreatedAt(comment.getCreatedAt());
 		commentDto.setFullName(comment.getUser().getFirstName()+" "+comment.getUser().getLastName());
 		commentDto.setId(comment.getId());
+		commentDto.setImageUrl(comment.getUser().getImage());
 		return commentDto;
 	}
 	

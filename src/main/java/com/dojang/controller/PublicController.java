@@ -1,6 +1,7 @@
 package com.dojang.controller;
 
 import com.dojang.dao.ParticipationDao;
+import com.dojang.dto.EventResponseDto;
 import com.dojang.dto.ParticipationResultDto;
 import com.dojang.model.*;
 import com.dojang.service.EventService;
@@ -30,8 +31,8 @@ public class PublicController {
     }
 
     @GetMapping("/events")
-    public List<Event> events(){
-      return  eventService.getAllEvents();
+    public List<EventResponseDto> events(){
+      return  eventService.getAllEvents().stream().map(event -> new EventResponseDto(event)).toList();
     }
 
     @GetMapping("/events/active")

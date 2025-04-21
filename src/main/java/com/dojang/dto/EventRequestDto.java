@@ -21,4 +21,6 @@ public class EventRequestDto {
 
     private Date endDate;
 
+    private  Date eventDate;
+
 }

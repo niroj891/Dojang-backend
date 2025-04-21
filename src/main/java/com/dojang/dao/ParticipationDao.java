@@ -6,6 +6,7 @@ import com.dojang.model.WeightCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -46,4 +47,10 @@ public interface ParticipationDao extends JpaRepository<Participation, Integer> 
             "     AND p2.weightCategory = p.weightCategory " +
             "     AND p2.playerStatus = com.dojang.model.PlayerStatus.NOTOUT) = 1")
     List<Participation> findSingleRemainingParticipants();
+
+
+    @Query("SELECT p.weightCategory, COUNT(p) FROM Participation p " +
+            "WHERE p.event.eventId = :eventId " +
+            "GROUP BY p.weightCategory")
+    List<Object[]> countParticipantsByWeightCategoryForEvent(@Param("eventId") Integer eventId);
 }

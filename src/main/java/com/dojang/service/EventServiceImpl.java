@@ -3,10 +3,9 @@ package com.dojang.service;
 import java.io.File;
 import java.io.IOException;
 import java.rmi.server.UID;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import com.dojang.dto.EventStatusDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +75,45 @@ public class EventServiceImpl implements EventService {
 		Optional<Event> byId = eventDao.findById(id);
 		Event event = byId.orElseThrow(()->new RuntimeException("Event not found"));
 		return  event;
+	}
+
+
+
+	public List<EventStatusDTO> getUpcomingAndRunningEvents(Integer instructorId) {
+		Date currentDate = new Date();
+		List<EventStatusDTO> result = new ArrayList<>();
+
+		// Get instructor's events
+		List<Event> instructorEvents = eventDao.findByInstructorId(instructorId);
+
+		// Categorize each event
+		for (Event event : instructorEvents) {
+			if (event.getEventDate().after(currentDate)) {
+				// Upcoming event
+				result.add(new EventStatusDTO(event, "UPCOMING"));
+			} else if (event.getEndDate() != null && !event.getEndDate().before(currentDate)) {
+				// Currently running event
+				result.add(new EventStatusDTO(event, "RUNNING"));
+			}
+		}
+
+		return result;
+	}
+
+	public long countUpcomingEvents(Integer instructorId) {
+		Date currentDate = new Date();
+		return eventDao.findByInstructorId(instructorId).stream()
+				.filter(event -> event.getEventDate().after(currentDate))
+				.count();
+	}
+
+	public long countRunningEvents(Integer instructorId) {
+		Date currentDate = new Date();
+		return eventDao.findByInstructorId(instructorId).stream()
+				.filter(event -> event.getEndDate() != null &&
+						!event.getEventDate().after(currentDate) &&
+						!event.getEndDate().before(currentDate))
+				.count();
 	}
 
 
